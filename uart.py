@@ -31,15 +31,14 @@ def read_data():
 
 if __name__ == "__main__":
     
-    print "Welcome to the Atlas Scientific Raspberry Pi example."
-    print(">> Atlas Scientific sample code")
+    print(">> Atlas Scientific Raspberry Pi sample code")
     print(">> Any commands entered are passed to the board via UART except:")
     print(">> Poll,xx.x command continuously polls the board every xx.x seconds")
     print(" Pressing ctrl-c will stop the polling")
 
-    usbport = '/dev/ttyS0'
+    usbport = '/dev/ttyAMA0'
 
-    print "Openning serial port now..."
+    print "Opening serial port now..."
 
     try:
         ser = serial.Serial(usbport, 9600, timeout=3)
@@ -77,10 +76,3 @@ if __name__ == "__main__":
                 val = read_data()
                 if val is not None:
                     print "Response: ", val
-
-
-
-
-
-
-
