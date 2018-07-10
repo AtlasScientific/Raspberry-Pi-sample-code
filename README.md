@@ -132,7 +132,19 @@ If you need to get sensor data continuously, input `POLL,3` to get data with tim
 
 For more details on the commands & responses, please refer the Datasheets of Atlas Sensors.
 
+# SMBus MODE #
+SMBus mode uses the pure-python smbus2 library to talk to one or more Atlas Scientific sensors. Currently only testing using Python3.
 
+### Setup ###
+    If using the Raspberry Pi, enable the I2C bus, similarly to the I2C section above.
+    Install the smbus2 module:
+        pip3 install smbus2
+
+### Test Sensor ###
+Run the sample code like below:
+
+    cd ~/Raspberry-Pi-sample-code
+    sudo python smbus.py
    
 # UART MODE #
 
