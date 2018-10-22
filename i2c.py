@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import io         # used to create file streams
+from io import open
 import fcntl      # used to access I2C parameters like addresses
 
 import time       # used for sleep delay and timestamps
@@ -37,19 +38,29 @@ class AtlasI2C:
 	def write(self, cmd):
 		# appends the null character and sends the string over I2C
 		cmd += "\00"
-		self.file_write.write(cmd)
+		self.file_write.write(cmd.encode('latin-1'))
 
 	def read(self, num_of_bytes=31):
 		# reads a specified number of bytes from I2C, then parses and displays the result
 		res = self.file_read.read(num_of_bytes)         # read from the board
-		response = filter(lambda x: x != '\x00', res)     # remove the null characters to get the response
-		if ord(response[0]) == 1:             # if the response isn't an error
-			# change MSB to 0 for all received characters except the first and get a list of characters
-			char_list = map(lambda x: chr(ord(x) & ~0x80), list(response[1:]))
-			# NOTE: having to change the MSB to 0 is a glitch in the raspberry pi, and you shouldn't have to do this!
-			return "Command succeeded " + ''.join(char_list)     # convert the char list to a string and returns it
-		else:
-			return "Error " + str(ord(response[0]))
+		if type(res[0]) is str:					# if python2 read
+			response = [i for i in res if i != '\x00']
+			if ord(response[0]) == 1:             # if the response isn't an error
+				# change MSB to 0 for all received characters except the first and get a list of characters
+				# NOTE: having to change the MSB to 0 is a glitch in the raspberry pi, and you shouldn't have to do this!
+				char_list = list(map(lambda x: chr(ord(x) & ~0x80), list(response[1:])))
+				return "Command succeeded " + ''.join(char_list)     # convert the char list to a string and returns it
+			else:
+				return "Error " + str(ord(response[0]))
+				
+		else:									# if python3 read
+			if res[0] == 1: 
+				# change MSB to 0 for all received characters except the first and get a list of characters
+				# NOTE: having to change the MSB to 0 is a glitch in the raspberry pi, and you shouldn't have to do this!
+				char_list = list(map(lambda x: chr(x & ~0x80), list(res[1:])))
+				return "Command succeeded " + ''.join(char_list)     # convert the char list to a string and returns it
+			else:
+				return "Error " + str(res[0])
 
 	def query(self, string):
 		# write a command to the board, wait the correct timeout, and read the response
@@ -76,7 +87,7 @@ class AtlasI2C:
 		for i in range (0,128):
 			try:
 				self.set_i2c_address(i)
-				self.read()
+				self.read(1)
 				i2c_devices.append(i)
 			except IOError:
 				pass
@@ -95,24 +106,26 @@ def main():
 	print(" where xx.x is longer than the %0.2f second timeout." % AtlasI2C.long_timeout)
 	print(">> Pressing ctrl-c will stop the polling")
 	
+	real_raw_input = vars(__builtins__).get('raw_input', input)
+	
 	# main loop
 	while True:
-		input = raw_input("Enter command: ")
+		user_cmd = real_raw_input("Enter command: ")
 
-		if input.upper().startswith("LIST_ADDR"):
+		if user_cmd.upper().startswith("LIST_ADDR"):
 			devices = device.list_i2c_devices()
 			for i in range(len (devices)):
-				print devices[i]
+				print( devices[i])
 
 		# address command lets you change which address the Raspberry Pi will poll
-		elif input.upper().startswith("ADDRESS"):
-			addr = int(string.split(input, ',')[1])
+		elif user_cmd.upper().startswith("ADDRESS"):
+			addr = int(user_cmd.split(',')[1])
 			device.set_i2c_address(addr)
 			print("I2C address set to " + str(addr))
 
 		# continuous polling command automatically polls the board
-		elif input.upper().startswith("POLL"):
-			delaytime = float(string.split(input, ',')[1])
+		elif user_cmd.upper().startswith("POLL"):
+			delaytime = float(string.split(user_cmd, ',')[1])
 
 			# check for polling time being too short, change it to the minimum timeout if too short
 			if delaytime < AtlasI2C.long_timeout:
@@ -132,11 +145,11 @@ def main():
 
 		# if not a special keyword, pass commands straight to board
 		else:
-			if len(input) == 0:
-				print "Please input valid command."
+			if len(user_cmd) == 0:
+				print( "Please input valid command.")
 			else:
 				try:
-					print(device.query(input))
+					print(device.query(user_cmd))
 				except IOError:
 					print("Query failed \n - Address may be invalid, use List_addr command to see available addresses")
 
