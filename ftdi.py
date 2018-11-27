@@ -46,7 +46,7 @@ class AtlasDevice(Device):
 			return lines
 		
 		except FtdiError:
-			print "Failed to read from the sensor."
+			print("Failed to read from the sensor.")
 			return ''		
 
 	def send_cmd(self, cmd):
@@ -61,7 +61,7 @@ class AtlasDevice(Device):
 			self.write(buf)
 			return True
 		except FtdiError:
-			print "Failed to send command to the sensor."
+			print("Failed to send command to the sensor.")
 			return False
 			
 			
@@ -84,41 +84,44 @@ def get_ftdi_device_list():
 
 if __name__ == '__main__':
 
-	print "\nWelcome to the Atlas Scientific Raspberry Pi FTDI Serial example.\n"
+	real_raw_input = vars(__builtins__).get('raw_input', input) # used to find the correct function for python2/3
+
+	print("\nWelcome to the Atlas Scientific Raspberry Pi FTDI Serial example.\n")
 	print("    Any commands entered are passed to the board via UART except:")
 	print("    Poll,xx.x command continuously polls the board every xx.x seconds")
 	print("    Pressing ctrl-c will stop the polling\n")
 	print("    Press enter to receive all data in buffer (for continuous mode) \n")
-	print "Discovered FTDI serial numbers:"
+	print("Discovered FTDI serial numbers:")
 
 	devices = get_ftdi_device_list()
 	cnt_all = len(devices)
 	
 	#print "\nIndex:\tSerial: "
 	for i in range(cnt_all):
-		print  "\nIndex: ", i, " Serial: ", devices[i]
-	print "==================================="
+		print(  "\nIndex: ", i, " Serial: ", devices[i])
+	print( "===================================")
 
 	index = 0
 	while True:
-		index = raw_input("Please select a device index: ")
+		index = real_raw_input("Please select a device index: ")
 
 		try:
 			dev = AtlasDevice(devices[int(index)])
 			break
 		except pylibftdi.FtdiError as e:
-			print "Error, ", e
-			print "Please input a valid index"
+			print( "Error, ", e)
+			print( "Please input a valid index")
 
-	print ""
-	print">> Opened device ", devices[int(index)]
-	print">> Any commands entered are passed to the board via FTDI:"
+	print( "")
+	print(">> Opened device ", devices[int(index)])
+	print(">> Any commands entered are passed to the board via FTDI:")
 
 	time.sleep(1)
 	dev.flush()
 	
+	
 	while True:
-		input_val = raw_input("Enter command: ")
+		input_val = real_raw_input("Enter command: ")
 
 		
 		
@@ -141,7 +144,7 @@ if __name__ == '__main__':
 					for i in range(len(lines)):
 						# print lines[i]
 						if lines[i][0] != '*':
-							print "Response: " , lines[i]
+							print("Response: " , lines[i])
 					time.sleep(delaytime)
 	
 			except KeyboardInterrupt: 		# catches the ctrl-c command, which breaks the loop above
@@ -152,10 +155,10 @@ if __name__ == '__main__':
 			if len(input_val) == 0:
 				lines = dev.read_lines()
 				for i in range(len(lines)):
-					print lines[i]
+					print( lines[i])
 			else:
 				dev.send_cmd(input_val)
 				time.sleep(1.3)
 				lines = dev.read_lines()
 				for i in range(len(lines)):
-					print lines[i]
+					print( lines[i])

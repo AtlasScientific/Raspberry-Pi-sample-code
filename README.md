@@ -33,8 +33,12 @@ FTDI mode works with Atlas Scientific's FTDI based USB to Serial devices such as
     
     
 - Install pylibftdi python package.
-    
-        sudo pip install pylibftdi
+    - For python 2: 
+		
+          sudo pip install pylibftdi
+     - For python 3: 
+
+           sudo pip3 install pylibftdi
 
 
 - Create SYMLINK of the FTDI adaptors.
