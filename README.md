@@ -22,9 +22,6 @@ https://www.raspberrypi.org/documentation/configuration/raspi-config.md
 
 # FTDI MODE #
 
-FTDI mode works with Atlas Scientific's FTDI based USB to Serial devices such as the 
-[Electrically Isolated USB EZO™ Carrier Board](https://www.atlas-scientific.com/product_pages/components/usb-iso.html) and the [Basic USB to Serial Converter](https://www.atlas-scientific.com/product_pages/components/basic_usb.html)
-
 ### Installing dependencies for FTDI adaptors ###
 
 - Install libftdi package.
@@ -33,18 +30,15 @@ FTDI mode works with Atlas Scientific's FTDI based USB to Serial devices such as
     
     
 - Install pylibftdi python package.
-    - For python 2: 
-		
-          sudo pip install pylibftdi
-     - For python 3: 
-
-           sudo pip3 install pylibftdi
+    
+        sudo pip install pylibftdi
 
 
 - Create SYMLINK of the FTDI adaptors.
-    **NOTE:** If you are using device with root permission, just skip this step. 
-
+    
     The following will allow ordinary users (e.g. ‘pi’ on the RPi) to access to the FTDI device without needing root permissions:
+    
+    If you are using device with root permission, just skip this step. 
     
     Create udev rule file by typing `sudo nano /etc/udev/rules.d/99-libftdi.rules` and insert below:
     
@@ -97,19 +91,17 @@ FTDI mode works with Atlas Scientific's FTDI based USB to Serial devices such as
     
 ### Using pylibftdi module for Atlas Sensors. ###
     
-Run the sample code.
+Please remember the serial number of your device and run the sample code.
     
     cd ~/Raspberry-Pi-sample-code
     sudo python ftdi.py
     
-When the program opens, it will give a list of available serial numbers. Type in the index number of the serial port you want the program to open to start communication.
+Input the serial number and you can see the sensor's information and also sensor's LED status as well.
  
-For more details on the commands & responses, please refer the Datasheet of your Atlas Scientific sensors.
+For more details on the commands & responses, please refer the Datasheets of Atlas Sensors. 
 
 
 # I2C MODE #
-
-I2C mode uses the GPIO I2C port on the Raspberry Pi to talk to one or more Atlas Scientific sensors.
 
 ### Enable I2C bus on the Raspberry Pi ###
 
@@ -117,34 +109,24 @@ Enable I2C bus on the Raspberry Pi by following this:
 
 https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c
 
-You can confirm this with `sudo i2cdetect -y 1` command.
+You can confirm that the setup worked and sensors are present with the `sudo i2cdetect -y 1` command.
 
 ### Test Sensor ###
     
-Run the sample code like below:
+Run the sample code below:
     
     cd ~/Raspberry-Pi-sample-code
     sudo python i2c.py
 
-The default I2C address is 98(0x62).
+When the code starts up a list of commands will be shown.
 
-To see the available I2C addresses, use `List_addr` command.
-
-If you need to change the address, input `ADDRESS,99` to change the address to 99(0x63)
-
-If you need to get sensor data continuously, input `POLL,3` to get data with time interval of 3 seconds.
-
-For more details on the commands & responses, please refer the Datasheets of Atlas Sensors.
+For more details on the commands & responses, please refer to the Datasheets of the Atlas Scientific Sensors.
 
 
    
 # UART MODE #
 
-This mode allows use of the GPIO UART as well as non FTDI based serial port devices.
-
-**NOTE:** This mode doesnt work with the Pi 3 when using the GPIO UART
- 
-### Preventing Raspberry Pi from taking up the serial port ###
+### Preventing Raspberry Pi from using the serial port ###
 
 The Broadcom UART appears as `/dev/ttyS0` under Linux. 
 
@@ -202,11 +184,3 @@ to search for getty processes using the serial port.
     
     cd ~/Raspberry-Pi-sample-code
     sudo python uart.py
-
-### To use other serial ports:
-
-change the line
-
-    usbport = '/dev/ttyAMA0'
-
-in `uart.py` to point to the serial port you wish to use and run the script.
