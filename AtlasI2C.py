@@ -93,7 +93,7 @@ class AtlasI2C:
         if self.app_using_python_two():
             return list(map(lambda x: chr(ord(x) & ~0x80), list(response)))
         else:
-            return list(map(lambda x: chr(x & ~0x80), list(response[1:])))
+            return list(map(lambda x: chr(x & ~0x80), list(response)))
             
     def app_using_python_two(self):
         return sys.version_info[0] < 3
