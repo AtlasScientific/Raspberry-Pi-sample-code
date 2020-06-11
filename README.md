@@ -1,8 +1,8 @@
-# Preparing Raspberry Pi 3 #
-### Install Raspbian Jessie on the Raspberry Pi 3
-    
-It is highly recommended to install Raspbian Jessie releases on 18th March 2016.
-http://downloads.raspberrypi.org/raspbian/images/raspbian-2016-03-18/2016-03-18-raspbian-jessie.zip
+
+# Preparing the Raspberry Pi #
+### Install the latest Raspberry Pi OS
+Follow the instructions on this page to get Raspberry Pi OS running
+https://www.raspberrypi.org/downloads/raspberry-pi-os/
 
 ### Expand file system
     
@@ -128,9 +128,9 @@ For more details on the commands & responses, please refer to the Datasheets of 
 
 ### Preventing Raspberry Pi from using the serial port ###
 
-The Broadcom UART appears as `/dev/ttyS0` under Linux. 
+The Broadcom UART appears as `/dev/ttyS0` under Linux on every Pi. The Pi 4 has additional UARTS, see below for instruction on how to use them
 
-There are several minor things in the way if you want to have dedicated control of the serial port on a Raspberry Pi.
+There are several minor things in the way if you want to have dedicated control of the primary serial port on a Raspberry Pi.
 
 - Firstly, the kernel will use the port as controlled by kernel command line contained in `/boot/cmdline.txt`. 
     
@@ -184,3 +184,30 @@ to search for getty processes using the serial port.
     
     cd ~/Raspberry-Pi-sample-code
     sudo python uart.py
+    
+### Alternate UARTS on Pi4:
+
+The raspberry pi 4 has 6 uarts
+
+To demonstrate alternate UART usage, we're going to enable UART 5
+Note that other UARTs share their pins with other peripherals, so those peripherals may have to be disabled to use them
+
+UART 5 uses pins 32 (TX) and 33 (RX) on the raspberry pi 40 pin header
+
+Go into the boot configuration 
+
+    sudo nano /boot/config.txt 
+
+and add the lines
+
+    enable_uart=1
+    dtoverlay=uart5
+
+then restart the raspberry pi
+
+To use this port in the uart sample code `uart.py` change line 70 to:
+
+    usbport = '/dev/ttyAMA1'
+ 
+Note that it may be a different ttyAMA depending on your setup
+
