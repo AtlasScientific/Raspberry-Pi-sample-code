@@ -11,17 +11,17 @@ def read_line():
 	taken from the ftdi library and modified to 
 	use the ezo line separator "\r"
 	"""
-	lsl = len('\r')
+	lsl = len(b'\r')
 	line_buffer = []
 	while True:
 		next_char = ser.read(1)
-		if next_char == '':
+		if next_char == b'':
 			break
 		line_buffer.append(next_char)
 		if (len(line_buffer) >= lsl and
-				line_buffer[-lsl:] == list('\r')):
+				line_buffer[-lsl:] == [b'\r']):
 			break
-	return ''.join(line_buffer)
+	return b''.join(line_buffer)
 	
 def read_lines():
 	"""
@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
 		# continuous polling command automatically polls the board
 		if input_val.upper().startswith("POLL"):
-			delaytime = float(string.split(input_val, ',')[1])
+			delaytime = float(input_val.split(',')[1])
 	
 			send_cmd("C,0") # turn off continuous mode
 			#clear all previous data
@@ -100,8 +100,8 @@ if __name__ == "__main__":
 					lines = read_lines()
 					for i in range(len(lines)):
 						# print lines[i]
-						if lines[i][0] != '*':
-							print( "Response: " , lines[i])
+						if lines[i][0] != b'*'[0]:
+							print( "Response: " + lines[i].decode('utf-8'))
 					time.sleep(delaytime)
 
 			except KeyboardInterrupt: 		# catches the ctrl-c command, which breaks the loop above
@@ -112,10 +112,10 @@ if __name__ == "__main__":
 			if len(input_val) == 0:
 				lines = read_lines()
 				for i in range(len(lines)):
-					print( lines[i])
+					print( lines[i].decode('utf-8'))
 			else:
 				send_cmd(input_val)
 				time.sleep(1.3)
 				lines = read_lines()
 				for i in range(len(lines)):
-					print( lines[i])
+					print( lines[i].decode('utf-8'))
