@@ -1,8 +1,8 @@
-# Preparing Raspberry Pi 3 #
-### Install Raspbian Jessie on the Raspberry Pi 3
-    
-It is highly recommended to install Raspbian Jessie releases on 18th March 2016.
-http://downloads.raspberrypi.org/raspbian/images/raspbian-2016-03-18/2016-03-18-raspbian-jessie.zip
+
+# Preparing the Raspberry Pi #
+### Install the latest Raspberry Pi OS
+Follow the instructions on this page to get Raspberry Pi OS running
+https://www.raspberrypi.org/downloads/raspberry-pi-os/
 
 ### Expand file system
     
@@ -22,9 +22,6 @@ https://www.raspberrypi.org/documentation/configuration/raspi-config.md
 
 # FTDI MODE #
 
-FTDI mode works with Atlas Scientific's FTDI based USB to Serial devices such as the 
-[Electrically Isolated USB EZO™ Carrier Board](https://www.atlas-scientific.com/product_pages/components/usb-iso.html) and the [Basic USB to Serial Converter](https://www.atlas-scientific.com/product_pages/components/basic_usb.html)
-
 ### Installing dependencies for FTDI adaptors ###
 
 - Install libftdi package.
@@ -33,18 +30,15 @@ FTDI mode works with Atlas Scientific's FTDI based USB to Serial devices such as
     
     
 - Install pylibftdi python package.
-    - For python 2: 
-		
-          sudo pip install pylibftdi
-     - For python 3: 
-
-           sudo pip3 install pylibftdi
+    
+        sudo pip install pylibftdi
 
 
 - Create SYMLINK of the FTDI adaptors.
-    **NOTE:** If you are using device with root permission, just skip this step. 
-
+    
     The following will allow ordinary users (e.g. ‘pi’ on the RPi) to access to the FTDI device without needing root permissions:
+    
+    If you are using device with root permission, just skip this step. 
     
     Create udev rule file by typing `sudo nano /etc/udev/rules.d/99-libftdi.rules` and insert below:
     
@@ -97,19 +91,17 @@ FTDI mode works with Atlas Scientific's FTDI based USB to Serial devices such as
     
 ### Using pylibftdi module for Atlas Sensors. ###
     
-Run the sample code.
+Please remember the serial number of your device and run the sample code.
     
     cd ~/Raspberry-Pi-sample-code
     sudo python ftdi.py
     
-When the program opens, it will give a list of available serial numbers. Type in the index number of the serial port you want the program to open to start communication.
+Input the serial number and you can see the sensor's information and also sensor's LED status as well.
  
-For more details on the commands & responses, please refer the Datasheet of your Atlas Scientific sensors.
+For more details on the commands & responses, please refer the Datasheets of Atlas Sensors. 
 
 
 # I2C MODE #
-
-I2C mode uses the GPIO I2C port on the Raspberry Pi to talk to one or more Atlas Scientific sensors.
 
 ### Enable I2C bus on the Raspberry Pi ###
 
@@ -117,38 +109,28 @@ Enable I2C bus on the Raspberry Pi by following this:
 
 https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c
 
-You can confirm this with `sudo i2cdetect -y 1` command.
+You can confirm that the setup worked and sensors are present with the `sudo i2cdetect -y 1` command.
 
 ### Test Sensor ###
     
-Run the sample code like below:
+Run the sample code below:
     
     cd ~/Raspberry-Pi-sample-code
     sudo python i2c.py
 
-The default I2C address is 98(0x62).
+When the code starts up a list of commands will be shown.
 
-To see the available I2C addresses, use `List_addr` command.
-
-If you need to change the address, input `ADDRESS,99` to change the address to 99(0x63)
-
-If you need to get sensor data continuously, input `POLL,3` to get data with time interval of 3 seconds.
-
-For more details on the commands & responses, please refer the Datasheets of Atlas Sensors.
+For more details on the commands & responses, please refer to the Datasheets of the Atlas Scientific Sensors.
 
 
    
 # UART MODE #
 
-This mode allows use of the GPIO UART as well as non FTDI based serial port devices.
+### Preventing Raspberry Pi from using the serial port ###
 
-**NOTE:** This mode doesnt work with the Pi 3 when using the GPIO UART
- 
-### Preventing Raspberry Pi from taking up the serial port ###
+The Broadcom UART appears as `/dev/ttyS0` under Linux on every Pi. The Pi 4 has additional UARTS, see below for instruction on how to use them
 
-The Broadcom UART appears as `/dev/ttyS0` under Linux. 
-
-There are several minor things in the way if you want to have dedicated control of the serial port on a Raspberry Pi.
+There are several minor things in the way if you want to have dedicated control of the primary serial port on a Raspberry Pi.
 
 - Firstly, the kernel will use the port as controlled by kernel command line contained in `/boot/cmdline.txt`. 
     
@@ -202,11 +184,30 @@ to search for getty processes using the serial port.
     
     cd ~/Raspberry-Pi-sample-code
     sudo python uart.py
+    
+### Alternate UARTS on Pi4:
 
-### To use other serial ports:
+The raspberry pi 4 has 6 uarts
 
-change the line
+To demonstrate alternate UART usage, we're going to enable UART 5
+Note that other UARTs share their pins with other peripherals, so those peripherals may have to be disabled to use them
 
-    usbport = '/dev/ttyAMA0'
+UART 5 uses pins 32 (TX) and 33 (RX) on the raspberry pi 40 pin header
 
-in `uart.py` to point to the serial port you wish to use and run the script.
+Go into the boot configuration 
+
+    sudo nano /boot/config.txt 
+
+and add the lines
+
+    enable_uart=1
+    dtoverlay=uart5
+
+then restart the raspberry pi
+
+To use this port in the uart sample code `uart.py` change line 70 to:
+
+    usbport = '/dev/ttyAMA1'
+ 
+Note that it may be a different ttyAMA depending on your setup
+
