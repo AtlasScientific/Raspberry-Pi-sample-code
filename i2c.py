@@ -26,8 +26,12 @@ def get_devices():
     for i in device_address_list:
         device.set_i2c_address(i)
         response = device.query("I")
-        moduletype = response.split(",")[1] 
-        response = device.query("name,?").split(",")[1]
+        try:
+            moduletype = response.split(",")[1] 
+            response = device.query("name,?").split(",")[1]
+        except IndexError:
+            print(">> WARNING: device at I2C address " + str(i) + " has not been identified as an EZO device, and will not be queried") 
+            continue
         device_list.append(AtlasI2C(address = i, moduletype = moduletype, name = response))
     return device_list 
        
@@ -56,11 +60,11 @@ def print_help_text():
        
 def main():
     
+    print_help_text()
+    
     device_list = get_devices()
         
     device = device_list[0]
-    
-    print_help_text()
     
     print_devices(device_list, device)
     
